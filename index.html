@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f5f4ed" />
+  <title>Surprise me — start.ng component</title>
+  <style>
+    :root { --paper:#f5f4ed; --ink:#24251f; --muted:#74756d; --line:#e4e1d7; --lime:#c9ff58; --white:#fffefa; }
+    * { box-sizing:border-box; }
+    body { min-height:100svh; margin:0; display:grid; place-items:center; padding:24px; color:var(--ink); background:var(--paper); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .picker { width:min(100%,370px); padding:19px; border:1px solid var(--line); border-radius:20px; background:var(--white); box-shadow:0 8px 24px rgba(37,38,30,.045); }
+    .topline { display:flex; justify-content:space-between; align-items:center; }
+    .eyebrow { display:inline-flex; align-items:center; gap:7px; color:#55564e; font-size:10px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+    .sparkle-mark { display:grid; place-items:center; width:25px; height:25px; border-radius:8px; background:#eaffb6; color:#38451f; font-size:14px; }
+    .count { color:#87877f; font-size:10px; font-weight:700; }
+    h1 { margin:12px 0 4px; font-size:24px; line-height:1.1; letter-spacing:-1px; }
+    .hint { min-height:34px; margin:0; color:var(--muted); font-size:12px; line-height:1.5; }
+    .ticket-space { position:relative; height:206px; margin:8px 0 0; display:grid; place-items:center; perspective:850px; }
+    .ticket-stack { position:relative; width:220px; height:130px; transform-style:preserve-3d; }
+    .ticket { position:absolute; inset:0; display:flex; overflow:hidden; border:1px solid #d9d8cc; border-radius:12px; background:#f2f5e9; box-shadow:0 8px 15px rgba(39,41,30,.1); }
+    .ticket::before,.ticket::after { content:""; position:absolute; z-index:3; top:50%; width:17px; height:17px; border:1px solid #deddd1; border-radius:50%; background:var(--white); transform:translateY(-50%); }
+    .ticket::before { left:-9px; } .ticket::after { right:-9px; }
+    .ticket.back { z-index:0; background:var(--card-accent,#e3e7d6); transform:translate(-23px,7px) rotate(-15deg); transform-origin:88% 55%; animation:deal-back .66s .1s cubic-bezier(.2,.8,.2,1.18) both; }
+    .ticket.middle { z-index:1; background:var(--card-accent,#eff0e2); transform:translate(22px,5px) rotate(14deg); transform-origin:12% 55%; animation:deal-middle .66s .2s cubic-bezier(.2,.8,.2,1.18) both; }
+    .ticket.front { z-index:2; transform:rotate(-1deg); transform-origin:center; animation:deal-front .62s .3s cubic-bezier(.2,.8,.2,1.2) both; }
+    .mini-face { position:absolute; inset:0; display:flex; align-items:center; gap:6px; padding:12px 14px; color:#303129; }
+    .mini-icon { font-size:28px; filter:drop-shadow(0 3px 2px rgba(35,40,25,.12)); }
+    .mini-title { max-width:94px; font-size:10px; line-height:1.1; font-weight:850; }
+    .ticket.back .mini-face { justify-content:flex-start; padding-left:17px; }
+    .ticket.middle .mini-face { justify-content:flex-end; padding-right:17px; }
+    .ticket-art { position:relative; width:55%; display:grid; place-items:center; overflow:hidden; background:var(--accent,#dbe9c4); isolation:isolate; transition:background .25s; }
+    .ticket-art::before { content:""; position:absolute; width:110px; height:110px; border:1px solid rgba(255,255,255,.8); border-radius:50%; box-shadow:0 0 0 10px rgba(255,255,255,.19),0 0 0 23px rgba(255,255,255,.13); transform:rotate(-15deg); transition:transform .5s; }
+    .ticket-icon { position:relative; z-index:1; font-size:45px; line-height:1; filter:drop-shadow(0 5px 4px rgba(40,45,30,.16)); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
+    .ticket-copy { position:relative; z-index:1; flex:1; display:flex; flex-direction:column; justify-content:center; padding:12px 14px 12px 12px; }
+    .ticket-tag { color:#6e7e4d; font-size:8px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+    .ticket-title { margin:7px 0 4px; font-size:15px; line-height:1.08; letter-spacing:-.35px; }
+    .ticket-by { color:#77786f; font-size:9px; }
+    .ticket-dash { width:37px; height:3px; margin-top:10px; border-radius:9px; background:var(--lime); }
+    .ticket-seal { position:absolute; right:9px; bottom:8px; display:grid; place-items:center; width:22px; height:22px; border:1px dashed #a4a995; border-radius:50%; color:#626a4d; font-size:11px; }
+    .sticker { position:absolute; z-index:4; color:#90b83a; font-size:17px; opacity:0; pointer-events:none; }
+    .sticker.s1 { top:16px; left:calc(50% - 118px); animation:twinkle .55s .32s both; }
+    .sticker.s2 { top:27px; right:calc(50% - 122px); color:#edb24f; font-size:13px; animation:twinkle .55s .47s both; }
+    .sticker.s3 { bottom:18px; left:calc(50% - 117px); color:#8175bf; font-size:12px; animation:twinkle .55s .57s both; }
+    .picker.is-shuffling .ticket-stack { animation:shuffle .8s cubic-bezier(.3,.7,.25,1) 2; }
+    .picker.is-shuffling .ticket.back { animation:shuffle-left .8s cubic-bezier(.45,0,.55,1) 2; }
+    .picker.is-shuffling .ticket.middle { animation:shuffle-right .8s cubic-bezier(.45,0,.55,1) 2; }
+    .picker.is-shuffling .ticket.front { animation:shuffle-front .8s ease-in-out 2; }
+    .picker.is-shuffling .ticket-icon { animation:icon-pop .8s ease-in-out 2; }
+    .picker.has-result .ticket.front { animation:result-pop .46s cubic-bezier(.18,.8,.24,1.22); }
+    .picker.has-result .ticket-art::before { transform:rotate(15deg) scale(1.08); }
+    .picker.has-result .ticket-icon { transform:translateY(-4px) rotate(7deg) scale(1.1); }
+    .actions { display:flex; gap:9px; align-items:center; margin-top:40px; }
+    button,.play-link { min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:0 13px; border:1px solid var(--ink); border-radius:9px; background:var(--ink); color:white; font:inherit; font-size:12px; font-weight:760; text-decoration:none; cursor:pointer; transition:transform .18s,background .18s; }
+    button { flex:1; }
+    button:hover,.play-link:hover { transform:translateY(-2px); background:#383a31; }
+    button:active,.play-link:active { transform:translateY(0); }
+    button:disabled { cursor:wait; opacity:.8; }
+    button .dice { display:grid; place-items:center; width:20px; height:20px; border-radius:6px; background:var(--lime); color:var(--ink); font-size:13px; transition:transform .45s; }
+    button:hover .dice { transform:rotate(35deg); }
+    .play-link { display:none; flex:1; color:var(--ink); background:var(--lime); border-color:#b5e948; }
+    .play-link:hover { background:#d8ff86; }
+    .has-result .play-link { display:inline-flex; }
+    .has-result button { flex:0 0 auto; }
+    .has-result button .label { font-size:0; }
+    .has-result button .label::after { content:"Pick another"; font-size:12px; }
+    .fineprint { display:flex; align-items:center; justify-content:center; gap:6px; margin:12px 0 0; color:#8a8a82; font-size:9px; }
+    .fineprint span { color:#89ad36; font-size:12px; }
+    button:focus-visible,.play-link:focus-visible { outline:3px solid #96c93b; outline-offset:3px; }
+    @keyframes twinkle { 0% { opacity:0; transform:scale(.1) rotate(-45deg); } 40% { opacity:1; transform:scale(1.35) rotate(15deg); } 100% { opacity:.82; transform:scale(1) rotate(0); } }
+    @keyframes deal-back { 0% { opacity:0; transform:translate(0,-12px) rotate(0) scale(.92); } 58% { opacity:1; transform:translate(-34px,10px) rotate(-21deg) scale(1.035); } 78% { transform:translate(-19px,4px) rotate(-11deg) scale(.99); } 100% { opacity:1; transform:translate(-23px,7px) rotate(-15deg) scale(1); } }
+    @keyframes deal-middle { 0% { opacity:0; transform:translate(0,-12px) rotate(0) scale(.92); } 58% { opacity:1; transform:translate(33px,9px) rotate(20deg) scale(1.035); } 78% { transform:translate(18px,3px) rotate(10deg) scale(.99); } 100% { opacity:1; transform:translate(22px,5px) rotate(14deg) scale(1); } }
+    @keyframes deal-front { 0% { opacity:0; transform:translateY(13px) rotate(0) scale(.93); } 68% { opacity:1; transform:translateY(-6px) rotate(2deg) scale(1.025); } 100% { opacity:1; transform:translateY(0) rotate(-1deg) scale(1); } }
+    @keyframes shuffle { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+    @keyframes shuffle-left { 0%,100% { transform:translate(-23px,7px) rotate(-15deg); } 26% { transform:translate(-55px,14px) rotate(-30deg); } 50% { transform:translate(-23px,7px) rotate(-15deg); } 76% { transform:translate(-52px,12px) rotate(-28deg); } }
+    @keyframes shuffle-right { 0%,100% { transform:translate(22px,5px) rotate(14deg); } 26% { transform:translate(54px,12px) rotate(29deg); } 50% { transform:translate(22px,5px) rotate(14deg); } 76% { transform:translate(51px,11px) rotate(27deg); } }
+    @keyframes shuffle-front { 0%,100% { transform:rotate(-1deg) translateY(0); } 25% { transform:rotate(4deg) translateY(-8px); } 50% { transform:rotate(-1deg) translateY(0); } 75% { transform:rotate(-4deg) translateY(-6px); } }
+    @keyframes icon-pop { 0%,100% { transform:scale(1) rotate(0); } 25% { transform:scale(.78) rotate(-12deg); } 50% { transform:scale(1) rotate(0); } 75% { transform:scale(1.12) rotate(10deg); } }
+    @keyframes result-pop { 0% { transform:rotate(-1deg) scale(.94); } 70% { transform:rotate(2deg) scale(1.035); } 100% { transform:rotate(-1deg) scale(1); } }
+      @media (max-width:400px) { body { padding:15px; } .picker { padding:16px; } .ticket-stack { width:210px; } .ticket.back { transform:translate(-20px,7px) rotate(-14deg); } .ticket.middle { transform:translate(19px,5px) rotate(13deg); } .ticket-title { font-size:14px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="picker" id="picker" aria-labelledby="title">
+    <div class="topline"><div class="eyebrow"><span class="sparkle-mark" aria-hidden="true">✳</span> Mystery game pick</div><span class="count">01 / ∞</span></div>
+    <h1 id="title">Surprise me</h1>
+    <p class="hint" id="hint" aria-live="polite">Can’t choose? Let the arcade pick your next game.</p>
+    <div class="ticket-space" aria-hidden="true">
+      <span class="sticker s1">✦</span><span class="sticker s2">✧</span><span class="sticker s3">✳</span>
+      <div class="ticket-stack">
+        <div class="ticket back" id="back-ticket" style="--card-accent:#e5def6"><div class="mini-face"><span class="mini-icon" id="back-icon">🌀</span><strong class="mini-title" id="back-title">Boju Boju</strong></div></div>
+        <div class="ticket middle" id="middle-ticket" style="--card-accent:#d7ebd0"><div class="mini-face"><span class="mini-icon" id="middle-icon">🛵</span><strong class="mini-title" id="middle-title">Lagos Bike Rush</strong></div></div>
+        <div class="ticket front" id="ticket">
+          <div class="ticket-art" id="ticket-art" style="--accent:#dfe9c7"><span class="ticket-icon" id="ticket-icon">🧭</span></div>
+          <div class="ticket-copy"><span class="ticket-tag" id="ticket-tag">community game</span><strong class="ticket-title" id="ticket-title">Git Quest</strong><span class="ticket-by" id="ticket-by">by Belemote</span><span class="ticket-dash"></span></div>
+          <span class="ticket-seal">✦</span>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" id="pick"><span class="dice" aria-hidden="true">✣</span><span class="label">Surprise me</span></button>
+      <a class="play-link" id="play" href="https://start.ng/games" aria-hidden="true" tabindex="-1">Play this game&nbsp; ↗</a>
+    </div>
+    <p class="fineprint"><span aria-hidden="true">✦</span> One tap away. A little mystery awaits.</p>
+  </main>
+  <script>
+    const games = [
+      { name: "Git Quest", by: "Belemote", icon: "🧭", color: "#dfe9c7", url: "https://start.ng/games/git-quest" },
+      { name: "Lagos Bike Rush", by: "OBA", icon: "🛵", color: "#d7ebd0", url: "https://start.ng/games/lagos-bike-rush" },
+      { name: "Boju Boju", by: "99PlusOne", icon: "🌀", color: "#e5def6", url: "https://start.ng/games/boju-boju" },
+      { name: "Job Hunt", by: "Raji", icon: "🧑🏽‍💻", color: "#f6e3c7", url: "https://start.ng/games/job-hunt" },
+      { name: "Budget Panic", by: "Envy_Boop", icon: "🪙", color: "#f3ded7", url: "https://start.ng/games/budget-panic" },
+      { name: "Lagos Market Run", by: "Michelle", icon: "🧺", color: "#d4ece5", url: "https://start.ng/games/lagos-market-run" },
+      { name: "Inkbreak", by: "henryuks", icon: "🖋️", color: "#dce1f8", url: "https://start.ng/games/inkbreak" },
+      { name: "Cosmic Dash", by: "Sabhayor", icon: "☄️", color: "#e6def5", url: "https://start.ng/games/cosmic-dash" },
+      { name: "Jollof Rush", by: "Y_Aisha", icon: "🍲", color: "#f3e4ce", url: "https://start.ng/games/jollof-rush" },
+      { name: "Whimsy Wick", by: "Kanyinsola", icon: "🕯️", color: "#f2e7bd", url: "https://start.ng/games/whimsy-wick" }
+    ];
+    const picker = document.getElementById("picker");
+    const button = document.getElementById("pick");
+    const hint = document.getElementById("hint");
+    const title = document.getElementById("ticket-title");
+    const byline = document.getElementById("ticket-by");
+    const icon = document.getElementById("ticket-icon");
+    const tag = document.getElementById("ticket-tag");
+    const art = document.getElementById("ticket-art");
+    const backTitle = document.getElementById("back-title");
+    const backIcon = document.getElementById("back-icon");
+    const middleTitle = document.getElementById("middle-title");
+    const middleIcon = document.getElementById("middle-icon");
+    const backTicket = document.getElementById("back-ticket");
+    const middleTicket = document.getElementById("middle-ticket");
+    const play = document.getElementById("play");
+    let lastPick = 0;
+    let busy = false;
+
+    button.addEventListener("click", () => {
+      if (busy) return;
+      busy = true;
+      button.disabled = true;
+      picker.classList.remove("has-result");
+      picker.classList.add("is-shuffling");
+      play.setAttribute("aria-hidden", "true");
+      play.setAttribute("tabindex", "-1");
+      hint.textContent = "Shuffling the community arcade…";
+      let ticks = 0;
+      const ticker = window.setInterval(() => {
+        let index;
+        do { index = Math.floor(Math.random() * games.length); } while (index === lastPick && games.length > 1);
+        const game = games[index];
+        title.textContent = game.name;
+        byline.textContent = `by ${game.by}`;
+        icon.textContent = game.icon;
+        art.style.setProperty("--accent", game.color);
+        tag.textContent = "lucky pick";
+        play.href = game.url;
+        const backGame = games[(index + 1) % games.length];
+        const middleGame = games[(index + 2) % games.length];
+        backTitle.textContent = backGame.name;
+        backIcon.textContent = backGame.icon;
+        backTicket.style.setProperty("--card-accent", backGame.color);
+        middleTitle.textContent = middleGame.name;
+        middleIcon.textContent = middleGame.icon;
+        middleTicket.style.setProperty("--card-accent", middleGame.color);
+        lastPick = index;
+        ticks += 1;
+        if (ticks >= 6) {
+          window.clearInterval(ticker);
+          window.setTimeout(() => {
+            picker.classList.remove("is-shuffling");
+            picker.classList.add("has-result");
+            hint.textContent = `The arcade picked ${game.name}. Fancy a round?`;
+            play.removeAttribute("aria-hidden");
+            play.removeAttribute("tabindex");
+            button.disabled = false;
+            busy = false;
+          }, 850);
+        }
+      }, 125);
+    });
+  </script>
+</body>
+</html>
