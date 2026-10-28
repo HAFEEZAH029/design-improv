@@ -1,29 +1,25 @@
-# Start.ng “Surprise me” picker
+# Start.ng Games page concept
 
-This project is a standalone concept for one small component that can sit inside Start.ng’s existing game discovery area. It is not a replacement homepage and it does not add a new game to the platform.
+This is a visual mockup of Start.ng’s **All games from the community** page, with the **Surprise me** game picker placed in the first slot of the existing game grid. It demonstrates how the component fits alongside the platform’s search, category tiles, filters, and game cards. It is a concept preview, not a replacement homepage or a game published to Start.ng.
 
-## What it does
+## The picker
 
-- Shows a stack of real Start.ng games on the front and behind cards.
-- Fans the cards out with a small bounce when the component appears.
-- On **Surprise me**, shuffles the stack open into a V and closes it twice.
-- Reveals a randomly selected game, its creator, and a link to play it.
-- Supports narrow screens, keyboard focus, and reduced-motion preferences.
+- Starts with a real community game on the front ticket and two other game tickets stacked behind it.
+- Floats gently in the game grid, pausing while hovered or focused.
+- On the visitor’s first scroll, a small gift follows a steady curved path from beside the Start.ng logo to the picker. A long dashed lime trail follows and gradually clears behind it; at the card edge, the gift bursts into confetti and reveals a briefly tilted “Arcade makes the choice” label.
+- Fans the smaller tickets into place with a bounce as the page loads.
+- On **Surprise me**, cycles through games while the stack opens into a V and closes twice.
+- Reveals the selected game, creator, and play link in the card.
+- Supports responsive layout, keyboard focus, and reduced-motion preferences.
 
-The prototype is in [index.html](./index.html). It uses plain HTML, CSS, and JavaScript, so it can be previewed by opening that file in a browser. No packages or build step are required.
+## Preview
 
-## How it fits into Start.ng
+Open [index.html](./index.html) in a browser. It uses plain HTML, CSS, and JavaScript, with no packages or build step. The search field also filters the sample game cards by title and creator.
 
-The picker is designed to occupy one card-sized slot in the existing **Games from the community** grid. The surrounding homepage keeps its current navigation, section headings, footer, and layout. The picker brings its own card content and interaction, then returns to the normal game grid beside it.
+## Fit with Start.ng
 
-Its visual styling follows the current page’s light cream background, dark text, lime accent, fine borders, rounded corners, and compact button treatment. When merged into the platform, those prototype values should use Start.ng’s existing design tokens and shared card/button styles.
+The mockup follows the Games page structure and styling shown in the current platform: centered page width, cream background, dark text, lime accent, rounded category tiles, filter pills, and four-column game cards. The picker uses the same card dimensions, border, cover area, title and creator hierarchy, and bottom action row. In the real page, it would be rendered as one item in the existing game-card grid; the platform’s header, footer, filters, and other sections would remain in place.
 
-## Integration notes
+For a production merge, replace the prototype game array with the Games page’s existing game data and use its cover images and URL/routing helpers. Reuse the platform’s design tokens and existing game-card styles. The picker only needs the game list already available to that page; it does not require a new API, account flow, leaderboard, or game session.
 
-1. Place the picker component in the existing games grid, where it will render as one card among the game cards.
-2. Replace the prototype’s local `games` array in `index.html` with the games already supplied to that page by Start.ng. The selected item should include its title, creator, cover or illustration, and existing play URL.
-3. Use the platform’s existing route helper or game URL when setting the **Play this game** link.
-4. Keep the picker’s random selection client-side. It does not need its own API, account flow, leaderboard, or game session.
-5. Keep the reduced-motion behavior and keyboard-accessible buttons when moving the markup and styles into the platform’s component system.
-
-The current list of games and their links is sample prototype data so the interaction can be previewed independently. It should be connected to Start.ng’s live game data during integration.
+Category and game-cover artwork in this mockup is simplified concept art to represent the surrounding page layout. The game names, creators, and routes in the picker are sample entries and should be connected to the live game data when integrated.

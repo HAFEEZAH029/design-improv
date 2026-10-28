@@ -4,165 +4,419 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#f5f4ed" />
-  <title>Surprise me — start.ng component</title>
+  <title>All games from the community — Start.ng concept</title>
   <style>
-    :root { --paper:#f5f4ed; --ink:#24251f; --muted:#74756d; --line:#e4e1d7; --lime:#c9ff58; --white:#fffefa; }
+    :root { --paper:#f5f4ed; --ink:#24251f; --muted:#77786f; --line:#e5e2d8; --lime:#c9ff58; --white:#fffefa; }
     * { box-sizing:border-box; }
-    body { min-height:100svh; margin:0; display:grid; place-items:center; padding:24px; color:var(--ink); background:var(--paper); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
-    .picker { width:min(100%,370px); padding:19px; border:1px solid var(--line); border-radius:20px; background:var(--white); box-shadow:0 8px 24px rgba(37,38,30,.045); }
-    .topline { display:flex; justify-content:space-between; align-items:center; }
-    .eyebrow { display:inline-flex; align-items:center; gap:7px; color:#55564e; font-size:10px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
-    .sparkle-mark { display:grid; place-items:center; width:25px; height:25px; border-radius:8px; background:#eaffb6; color:#38451f; font-size:14px; }
-    .count { color:#87877f; font-size:10px; font-weight:700; }
-    h1 { margin:12px 0 4px; font-size:24px; line-height:1.1; letter-spacing:-1px; }
-    .hint { min-height:34px; margin:0; color:var(--muted); font-size:12px; line-height:1.5; }
-    .ticket-space { position:relative; height:206px; margin:8px 0 0; display:grid; place-items:center; perspective:850px; }
-    .ticket-stack { position:relative; width:220px; height:130px; transform-style:preserve-3d; }
-    .ticket { position:absolute; inset:0; display:flex; overflow:hidden; border:1px solid #d9d8cc; border-radius:12px; background:#f2f5e9; box-shadow:0 8px 15px rgba(39,41,30,.1); }
-    .ticket::before,.ticket::after { content:""; position:absolute; z-index:3; top:50%; width:17px; height:17px; border:1px solid #deddd1; border-radius:50%; background:var(--white); transform:translateY(-50%); }
-    .ticket::before { left:-9px; } .ticket::after { right:-9px; }
-    .ticket.back { z-index:0; background:var(--card-accent,#e3e7d6); transform:translate(-23px,7px) rotate(-15deg); transform-origin:88% 55%; animation:deal-back .66s .1s cubic-bezier(.2,.8,.2,1.18) both; }
-    .ticket.middle { z-index:1; background:var(--card-accent,#eff0e2); transform:translate(22px,5px) rotate(14deg); transform-origin:12% 55%; animation:deal-middle .66s .2s cubic-bezier(.2,.8,.2,1.18) both; }
-    .ticket.front { z-index:2; transform:rotate(-1deg); transform-origin:center; animation:deal-front .62s .3s cubic-bezier(.2,.8,.2,1.2) both; }
-    .mini-face { position:absolute; inset:0; display:flex; align-items:center; gap:6px; padding:12px 14px; color:#303129; }
-    .mini-icon { font-size:28px; filter:drop-shadow(0 3px 2px rgba(35,40,25,.12)); }
-    .mini-title { max-width:94px; font-size:10px; line-height:1.1; font-weight:850; }
-    .ticket.back .mini-face { justify-content:flex-start; padding-left:17px; }
-    .ticket.middle .mini-face { justify-content:flex-end; padding-right:17px; }
-    .ticket-art { position:relative; width:55%; display:grid; place-items:center; overflow:hidden; background:var(--accent,#dbe9c4); isolation:isolate; transition:background .25s; }
-    .ticket-art::before { content:""; position:absolute; width:110px; height:110px; border:1px solid rgba(255,255,255,.8); border-radius:50%; box-shadow:0 0 0 10px rgba(255,255,255,.19),0 0 0 23px rgba(255,255,255,.13); transform:rotate(-15deg); transition:transform .5s; }
-    .ticket-icon { position:relative; z-index:1; font-size:45px; line-height:1; filter:drop-shadow(0 5px 4px rgba(40,45,30,.16)); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
-    .ticket-copy { position:relative; z-index:1; flex:1; display:flex; flex-direction:column; justify-content:center; padding:12px 14px 12px 12px; }
-    .ticket-tag { color:#6e7e4d; font-size:8px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
-    .ticket-title { margin:7px 0 4px; font-size:15px; line-height:1.08; letter-spacing:-.35px; }
-    .ticket-by { color:#77786f; font-size:9px; }
-    .ticket-dash { width:37px; height:3px; margin-top:10px; border-radius:9px; background:var(--lime); }
-    .ticket-seal { position:absolute; right:9px; bottom:8px; display:grid; place-items:center; width:22px; height:22px; border:1px dashed #a4a995; border-radius:50%; color:#626a4d; font-size:11px; }
-    .sticker { position:absolute; z-index:4; color:#90b83a; font-size:17px; opacity:0; pointer-events:none; }
-    .sticker.s1 { top:16px; left:calc(50% - 118px); animation:twinkle .55s .32s both; }
-    .sticker.s2 { top:27px; right:calc(50% - 122px); color:#edb24f; font-size:13px; animation:twinkle .55s .47s both; }
-    .sticker.s3 { bottom:18px; left:calc(50% - 117px); color:#8175bf; font-size:12px; animation:twinkle .55s .57s both; }
-    .picker.is-shuffling .ticket-stack { animation:shuffle .8s cubic-bezier(.3,.7,.25,1) 2; }
-    .picker.is-shuffling .ticket.back { animation:shuffle-left .8s cubic-bezier(.45,0,.55,1) 2; }
-    .picker.is-shuffling .ticket.middle { animation:shuffle-right .8s cubic-bezier(.45,0,.55,1) 2; }
-    .picker.is-shuffling .ticket.front { animation:shuffle-front .8s ease-in-out 2; }
-    .picker.is-shuffling .ticket-icon { animation:icon-pop .8s ease-in-out 2; }
-    .picker.has-result .ticket.front { animation:result-pop .46s cubic-bezier(.18,.8,.24,1.22); }
-    .picker.has-result .ticket-art::before { transform:rotate(15deg) scale(1.08); }
-    .picker.has-result .ticket-icon { transform:translateY(-4px) rotate(7deg) scale(1.1); }
-    .actions { display:flex; gap:9px; align-items:center; margin-top:40px; }
-    button,.play-link { min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:0 13px; border:1px solid var(--ink); border-radius:9px; background:var(--ink); color:white; font:inherit; font-size:12px; font-weight:760; text-decoration:none; cursor:pointer; transition:transform .18s,background .18s; }
-    button { flex:1; }
-    button:hover,.play-link:hover { transform:translateY(-2px); background:#383a31; }
-    button:active,.play-link:active { transform:translateY(0); }
-    button:disabled { cursor:wait; opacity:.8; }
-    button .dice { display:grid; place-items:center; width:20px; height:20px; border-radius:6px; background:var(--lime); color:var(--ink); font-size:13px; transition:transform .45s; }
-    button:hover .dice { transform:rotate(35deg); }
-    .play-link { display:none; flex:1; color:var(--ink); background:var(--lime); border-color:#b5e948; }
-    .play-link:hover { background:#d8ff86; }
-    .has-result .play-link { display:inline-flex; }
-    .has-result button { flex:0 0 auto; }
-    .has-result button .label { font-size:0; }
-    .has-result button .label::after { content:"Pick another"; font-size:12px; }
-    .fineprint { display:flex; align-items:center; justify-content:center; gap:6px; margin:12px 0 0; color:#8a8a82; font-size:9px; }
-    .fineprint span { color:#89ad36; font-size:12px; }
-    button:focus-visible,.play-link:focus-visible { outline:3px solid #96c93b; outline-offset:3px; }
-    @keyframes twinkle { 0% { opacity:0; transform:scale(.1) rotate(-45deg); } 40% { opacity:1; transform:scale(1.35) rotate(15deg); } 100% { opacity:.82; transform:scale(1) rotate(0); } }
-    @keyframes deal-back { 0% { opacity:0; transform:translate(0,-12px) rotate(0) scale(.92); } 58% { opacity:1; transform:translate(-34px,10px) rotate(-21deg) scale(1.035); } 78% { transform:translate(-19px,4px) rotate(-11deg) scale(.99); } 100% { opacity:1; transform:translate(-23px,7px) rotate(-15deg) scale(1); } }
-    @keyframes deal-middle { 0% { opacity:0; transform:translate(0,-12px) rotate(0) scale(.92); } 58% { opacity:1; transform:translate(33px,9px) rotate(20deg) scale(1.035); } 78% { transform:translate(18px,3px) rotate(10deg) scale(.99); } 100% { opacity:1; transform:translate(22px,5px) rotate(14deg) scale(1); } }
-    @keyframes deal-front { 0% { opacity:0; transform:translateY(13px) rotate(0) scale(.93); } 68% { opacity:1; transform:translateY(-6px) rotate(2deg) scale(1.025); } 100% { opacity:1; transform:translateY(0) rotate(-1deg) scale(1); } }
-    @keyframes shuffle { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
-    @keyframes shuffle-left { 0%,100% { transform:translate(-23px,7px) rotate(-15deg); } 26% { transform:translate(-55px,14px) rotate(-30deg); } 50% { transform:translate(-23px,7px) rotate(-15deg); } 76% { transform:translate(-52px,12px) rotate(-28deg); } }
-    @keyframes shuffle-right { 0%,100% { transform:translate(22px,5px) rotate(14deg); } 26% { transform:translate(54px,12px) rotate(29deg); } 50% { transform:translate(22px,5px) rotate(14deg); } 76% { transform:translate(51px,11px) rotate(27deg); } }
-    @keyframes shuffle-front { 0%,100% { transform:rotate(-1deg) translateY(0); } 25% { transform:rotate(4deg) translateY(-8px); } 50% { transform:rotate(-1deg) translateY(0); } 75% { transform:rotate(-4deg) translateY(-6px); } }
-    @keyframes icon-pop { 0%,100% { transform:scale(1) rotate(0); } 25% { transform:scale(.78) rotate(-12deg); } 50% { transform:scale(1) rotate(0); } 75% { transform:scale(1.12) rotate(10deg); } }
-    @keyframes result-pop { 0% { transform:rotate(-1deg) scale(.94); } 70% { transform:rotate(2deg) scale(1.035); } 100% { transform:rotate(-1deg) scale(1); } }
-      @media (max-width:400px) { body { padding:15px; } .picker { padding:16px; } .ticket-stack { width:210px; } .ticket.back { transform:translate(-20px,7px) rotate(-14deg); } .ticket.middle { transform:translate(19px,5px) rotate(13deg); } .ticket-title { font-size:14px; } }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color:inherit; }
+    .shell { width:min(912px,calc(100% - 36px)); margin-inline:auto; }
+    .topbar { height:66px; border-bottom:1px solid var(--line); background:rgba(245,244,237,.96); }
+    .topbar-inner { width:min(912px,calc(100% - 36px)); height:100%; margin:auto; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:inline-flex; align-items:center; gap:8px; text-decoration:none; font-size:20px; font-weight:850; letter-spacing:-.9px; }
+    .brand-mark { display:grid; place-items:center; width:26px; height:26px; border-radius:7px; background:var(--lime); color:var(--ink); font-size:13px; }
+    .nav { display:flex; align-items:center; gap:25px; color:#66675f; font-size:14px; }
+    .nav a { text-decoration:none; }
+    .nav a:first-child { color:var(--ink); font-weight:700; }
+    .nav .signin { margin-left:0; padding:10px 20px; border-radius:10px; background:var(--ink); color:white; font-weight:750; }
+    .theme-toggle { display:grid; place-items:center; width:40px; height:40px; border:1px solid var(--line); border-radius:50%; background:var(--white); font-size:17px; }
+    main { padding:0 0 70px; }
+    h1 { margin:0 0 17px; padding-top:0; font-size:36px; line-height:1.15; letter-spacing:-1.7px; }
+    .scroll-cue { margin:-5px 0 22px; color:var(--ink); font-size:13px; font-weight:750; line-height:1.4; letter-spacing:.025em; }
+    .search-row { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .search { width:min(420px,70%); height:44px; display:flex; align-items:center; gap:12px; padding:0 15px; border:1px solid var(--line); border-radius:999px; background:var(--white); color:#73746d; }
+    .search svg { flex:0 0 auto; width:16px; height:16px; }
+    .search input { width:100%; border:0; outline:0; background:transparent; color:var(--ink); font:inherit; font-size:14px; }
+    .search input::placeholder { color:#77786f; }
+    .range { color:#77786f; font:12px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.02em; white-space:nowrap; }
+    .category-section { margin-top:28px; }
+    .section-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:13px; }
+    .section-heading h2 { margin:0; font-size:22px; letter-spacing:-.6px; }
+    .section-heading a { color:var(--ink); font-size:14px; text-decoration:none; }
+    .section-heading a:hover { text-decoration:underline; text-underline-offset:4px; }
+    .category-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:13px; }
+    .category { position:relative; min-height:110px; display:flex; align-items:end; padding:12px 15px; overflow:hidden; border:1px solid rgba(0,0,0,.08); border-radius:17px; color:#fff; text-decoration:none; background:var(--art-bg); isolation:isolate; box-shadow:inset 0 -50px 45px -15px rgba(0,0,0,.58); transition:transform .2s,filter .2s; }
+    .category::before { content:attr(data-art); position:absolute; z-index:-1; inset:0; display:grid; place-items:center; padding-bottom:13px; color:rgba(255,255,255,.82); font-size:48px; filter:drop-shadow(0 5px 8px rgba(0,0,0,.25)); transition:transform .3s; }
+    .category::after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.02) 20%,rgba(0,0,0,.72) 100%); }
+    .category:hover { transform:translateY(-2px); filter:saturate(1.08); }
+    .category:hover::before { transform:translateY(-3px) scale(1.08); }
+    .category-copy { position:relative; z-index:1; }
+    .category strong { display:block; max-width:185px; font-size:16px; line-height:1.1; letter-spacing:-.35px; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+    .category small { display:block; margin-top:5px; font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .cat-runner { --art-bg:linear-gradient(135deg,#26424b,#c0783e 56%,#efd58e); }
+    .cat-naija { --art-bg:linear-gradient(130deg,#623c2c,#b77a47 52%,#e8c680); }
+    .cat-brain { --art-bg:radial-gradient(circle at 70% 30%,#548179,#122229 70%); }
+    .cat-space { --art-bg:radial-gradient(circle at 70% 35%,#7556ad,#191629 68%); }
+    .cat-race { --art-bg:linear-gradient(145deg,#163849,#bd694c 56%,#f4cf8b); }
+    .cat-catch { --art-bg:linear-gradient(140deg,#70b3ce,#79ad52 53%,#a87641); }
+    .cat-ruins { --art-bg:linear-gradient(135deg,#172c22,#6c7040 60%,#c08d4b); }
+    .cat-friends { --art-bg:linear-gradient(135deg,#304961,#84528e 55%,#e0a24b); }
+
+    .filters { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:15px 0 16px; }
+    .filter-pill { min-height:30px; display:inline-flex; align-items:center; gap:7px; padding:0 13px; border:1px solid var(--line); border-radius:999px; background:var(--white); color:var(--ink); font-size:12px; text-decoration:none; }
+    .filter-pill.active { border-color:var(--ink); background:var(--ink); color:white; }
+    .filter-text { margin-left:5px; color:#272821; font-size:13px; }
+    .filter-select { min-height:30px; display:inline-flex; align-items:center; gap:11px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:#f8f7f0; color:var(--ink); font-size:12px; }
+    .filter-select b { font-weight:600; }
+    .chevron { color:#77786f; font-size:15px; }
+
+    .games-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px; align-items:stretch; }
+    .game-card { min-width:0; padding:10px; border:1px solid var(--line); border-radius:21px; background:var(--white); text-decoration:none; transition:border-color .2s,box-shadow .2s,transform .2s; }
+    .game-card:hover { transform:translateY(-2px); border-color:#c8e582; box-shadow:0 5px 17px rgba(82,111,30,.1); }
+    .cover { position:relative; height:121px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:#292a25; color:#fff; isolation:isolate; }
+    .cover .cover-glow { position:absolute; inset:0; background:radial-gradient(circle at 70% 24%,rgba(201,255,88,.1),transparent 35%); }
+    .cover-tag { position:absolute; top:9px; left:9px; padding:4px 7px; border-radius:5px; background:var(--lime); color:#25261f; font-size:7px; font-weight:900; letter-spacing:.1em; }
+    .cover-title { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:20px; line-height:1; font-weight:900; letter-spacing:-.8px; }
+    .cover-note { position:absolute; left:12px; bottom:11px; width:45%; color:#c7c7bd; font-size:7px; line-height:1.25; }
+    .cover-frame { position:absolute; right:10px; top:15px; width:48%; height:89px; border:1px solid #73766a; border-radius:8px; background:#20211d; box-shadow:inset -3px -3px 0 rgba(201,255,88,.65); }
+    .hangout-cover { background:linear-gradient(#bde7f2 0 56%,#92c574 56%); }
+    .hangout-sun { position:absolute; top:12px; right:23px; width:18px; height:18px; border-radius:50%; background:#f4df88; }
+    .hangout-tree { position:absolute; bottom:24px; width:10px; height:34px; background:#735538; }
+    .hangout-tree::before { content:""; position:absolute; width:25px; height:25px; left:-8px; top:-14px; border-radius:50%; background:#4c9a50; box-shadow:7px -5px 0 #67ad57,-5px 1px 0 #77b95c; }
+    .hangout-tree.t1 { left:24px; transform:scale(.8); } .hangout-tree.t2 { left:68px; transform:scale(1.2); } .hangout-tree.t3 { right:30px; transform:scale(.9); }
+    .hangout-person { position:absolute; bottom:21px; left:47%; font-size:24px; }
+    .orange-cover { background:linear-gradient(135deg,#ffcc00,#ed3d05); }
+    .orange-cover .initial { font-size:48px; font-weight:900; text-shadow:0 3px 7px rgba(80,25,0,.24); }
+    .dark-cover { background:#292a25; }
+    .game-word { position:absolute; left:11px; top:50%; width:38%; transform:translateY(-50%); font-size:19px; font-weight:900; letter-spacing:-.7px; }
+    .game-description { display:block; margin-top:5px; color:#c8c8bf; font-size:7px; line-height:1.25; font-weight:500; letter-spacing:0; }
+    .mock-screen { position:absolute; right:9px; top:16px; width:50%; height:86px; border:1px solid #73766d; border-radius:7px; padding:7px; box-shadow:inset -3px -3px 0 rgba(201,255,88,.8); }
+    .screen-title { display:flex; align-items:center; justify-content:center; height:14px; border-radius:3px; background:#c9ff58; color:#25261f; font-size:8px; font-weight:900; letter-spacing:.1em; }
+    .bingo-balls { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-top:5px; }
+    .bingo-balls i { display:grid; place-items:center; aspect-ratio:1; border-radius:50%; background:#c9ff58; color:#20211c; font-size:6px; font-style:normal; font-weight:900; }
+    .quiz-option { margin-top:5px; padding:4px; border:1px solid #626359; border-radius:3px; color:#d8d8d0; font-size:6px; }
+    .quiz-option.correct { border-color:#c9ff58; background:#47592d; color:#efffc9; }
+    .ludo-board { position:absolute; inset:13px 16px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:5px; padding:7px; border:2px solid #c9ff58; border-radius:8px; background:#e8e6d9; transform:rotate(-4deg); }
+    .ludo-board i { display:grid; place-items:center; border-radius:5px; color:white; font-size:14px; font-style:normal; font-weight:900; }
+    .ludo-board i:nth-child(1) { background:#ef6155; } .ludo-board i:nth-child(2) { background:#64b76d; } .ludo-board i:nth-child(3) { background:#5b9ce0; } .ludo-board i:nth-child(4) { background:#f2ca54; }
+    .whot-cards { position:absolute; right:18px; top:17px; display:flex; transform:rotate(9deg); }
+    .whot-cards i { width:35px; height:58px; display:grid; place-items:center; margin-left:-10px; border:1px solid #ddd7be; border-radius:5px; background:#fffbed; color:#ee745b; font-size:17px; font-style:normal; font-weight:900; box-shadow:0 2px 4px #1114; }
+    .whot-cards i:nth-child(2) { transform:rotate(-13deg); color:#66a9d4; } .whot-cards i:nth-child(3) { transform:rotate(8deg); color:#9a84c4; }
+    .ayo-seeds { position:absolute; top:25px; right:16px; width:91px; height:54px; border:2px solid #886b43; border-radius:28px; background:#6e502e; box-shadow:inset 0 0 0 4px #392b20; }
+    .ayo-seeds::before,.ayo-seeds::after { content:""; position:absolute; top:15px; width:9px; height:9px; border-radius:50%; background:#cda75c; box-shadow:15px 0 #cda75c,30px 0 #cda75c,45px 0 #cda75c; }
+    .ayo-seeds::before { left:7px; } .ayo-seeds::after { left:7px; top:29px; }
+    .draught-board { position:absolute; right:15px; top:14px; width:79px; height:79px; display:grid; grid-template-columns:repeat(6,1fr); border:2px solid #c9ff58; transform:rotate(-4deg); }
+    .draught-board i { background:#e8e1cd; } .draught-board i:nth-child(2n) { background:#65533e; }
+    .draught-board b { position:absolute; width:9px; height:9px; border-radius:50%; background:#dc6354; box-shadow:17px 17px #dc6354,34px 0 #e2c65f,51px 34px #e2c65f; }
+
+    .game-info { padding:10px 6px 0; }
+    .game-name { display:block; overflow:hidden; color:#1f201b; font-size:16px; line-height:1.1; font-weight:780; letter-spacing:-.3px; text-overflow:ellipsis; white-space:nowrap; }
+    .game-url { display:block; overflow:hidden; margin-top:5px; color:#77776d; font:10px ui-monospace,SFMono-Regular,Menlo,monospace; text-overflow:ellipsis; white-space:nowrap; }
+    .game-by { display:block; overflow:hidden; margin-top:5px; color:#77776d; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+    .game-actions { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding:0 3px; }
+    .heart { border:0; padding:0; background:transparent; color:#a9aaa1; font-size:18px; line-height:1; }
+    .card-link { display:inline-flex; align-items:center; min-height:22px; border:0; padding:0 2px; background:transparent; color:var(--ink); text-decoration:none; font-size:12px; font-weight:750; cursor:pointer; }
+    .card-link:hover { text-decoration:underline; text-underline-offset:3px; }
+
+    /* Picker stays the same size and shape as a neighboring community game card. */
+    .picker-card { position:relative; border-color:#c4e36c; box-shadow:0 0 0 1px rgba(201,255,88,.75),0 7px 22px rgba(113,155,43,.13); animation:card-float 3.6s ease-in-out infinite; }
+    .picker-card:hover { border-color:#9fd22f; box-shadow:0 0 0 2px rgba(201,255,88,.8),0 9px 23px rgba(113,155,43,.19); }
+    .picker-card:hover,.picker-card:focus-within { animation-play-state:paused; }
+    .picker-cover { --pick-accent:#dfe9c7; position:relative; height:121px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:radial-gradient(ellipse at 50% 110%,#d6edac,#eff5de 69%); isolation:isolate; }
+    .picker-cover::before,.picker-cover::after { content:""; position:absolute; width:160px; height:100px; border:1px solid rgba(122,153,73,.19); border-radius:50%; transform:rotate(-13deg); }
+    .picker-cover::after { width:190px; height:119px; border-color:rgba(122,153,73,.1); }
+    .picker-cover .tiny-star { position:absolute; z-index:4; color:#89b934; font-size:12px; }
+    .picker-cover .tiny-star.s1 { left:24px; top:19px; } .picker-cover .tiny-star.s2 { right:23px; bottom:17px; color:#e3a739; font-size:10px; }
+    .mini-stack { position:relative; z-index:2; width:132px; height:78px; perspective:450px; }
+    .mini-ticket { position:absolute; inset:0; display:flex; overflow:hidden; border:1px solid #dcddcf; border-radius:8px; background:#f2f5e9; box-shadow:0 5px 10px rgba(37,42,26,.15); }
+    .mini-ticket.back { z-index:0; background:var(--mini-color,#e3e7d6); transform:translate(-19px,5px) rotate(-14deg); transform-origin:88% 55%; animation:deal-left .6s .12s cubic-bezier(.2,.8,.2,1.2) both; }
+    .mini-ticket.middle { z-index:1; background:var(--mini-color,#eff0e2); transform:translate(18px,4px) rotate(13deg); transform-origin:12% 55%; animation:deal-right .6s .22s cubic-bezier(.2,.8,.2,1.2) both; }
+    .mini-ticket.front { z-index:2; transform:rotate(-1deg); animation:deal-front .58s .32s cubic-bezier(.2,.8,.2,1.2) both; }
+    .mini-art { width:39%; display:grid; place-items:center; background:var(--ticket-art,#dfe9c7); font-size:25px; filter:drop-shadow(0 3px 2px rgba(35,40,25,.12)); }
+    .mini-copy { flex:1; display:flex; flex-direction:column; justify-content:center; padding:6px 6px 6px 7px; }
+    .mini-tag { color:#718443; font-size:6px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+    .mini-name { margin-top:4px; color:#292a24; font-size:9px; line-height:1.08; font-weight:900; }
+    .mini-by { margin-top:3px; color:#77786d; font-size:6px; }
+    .mini-back-face { position:absolute; inset:0; display:flex; align-items:center; gap:5px; padding:8px 10px; color:#35362e; }
+    .mini-back-face span { font-size:20px; }
+    .mini-back-face b { max-width:65px; font-size:7px; line-height:1.1; }
+    .mini-ticket.back .mini-back-face { justify-content:flex-start; padding-left:13px; }
+    .mini-ticket.middle .mini-back-face { justify-content:flex-end; padding-right:12px; }
+    .picker-card.is-shuffling .mini-ticket.back { animation:shuffle-left .72s cubic-bezier(.45,0,.55,1) 2; }
+    .picker-card.is-shuffling .mini-ticket.middle { animation:shuffle-right .72s cubic-bezier(.45,0,.55,1) 2; }
+    .picker-card.is-shuffling .mini-ticket.front { animation:shuffle-front .72s ease-in-out 2; }
+    .picker-card.is-shuffling .mini-art { animation:icon-hop .72s ease-in-out 2; }
+    .picker-card.has-result .mini-ticket.front { animation:pick-land .42s cubic-bezier(.18,.8,.24,1.22); }
+    .picker-card.has-result .mini-ticket.front .mini-art { transform:scale(1.06); }
+    .picker-game-title { display:block; overflow:hidden; color:#1f201b; font-size:14px; line-height:1.1; font-weight:780; letter-spacing:-.15px; text-overflow:ellipsis; white-space:nowrap; }
+    .picker-subtitle { display:block; margin-top:9px; color:#77776d; font-size:11px; line-height:1.35; }
+    .picker-by { display:block; overflow:hidden; margin-top:5px; color:#77776d; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+    .picker-by:empty { display:none; }
+    .pick-button { min-height:30px; border:1px solid #b8e84d; padding:0 12px; border-radius:999px; background:var(--lime); color:#171813; font:inherit; font-size:12px; font-weight:750; cursor:pointer; transition:transform .18s,background .18s; }
+    .pick-button:hover { transform:translateY(-1px); background:#d8ff86; }
+    .play-result { display:none; border:0; padding:0 2px; background:transparent; color:var(--ink); font:inherit; font-size:12px; font-weight:750; text-decoration:none; }
+    .play-result:hover { text-decoration:underline; text-underline-offset:3px; }
+    .picker-card.has-result .pick-button { font-size:0; }
+    .picker-card.has-result .pick-button::after { content:"↻ Pick again"; font-size:12px; }
+    .picker-card.has-result .play-result { display:inline; }
+    .picker-card.has-result .game-actions { gap:4px; }
+    .picker-card[aria-busy="true"] .pick-button { opacity:.55; pointer-events:none; }
+
+    .empty { grid-column:1/-1; padding:36px; border:1px dashed var(--line); border-radius:16px; color:var(--muted); text-align:center; }
+    .help { position:fixed; z-index:10; bottom:16px; left:16px; display:flex; align-items:center; gap:8px; padding:7px 13px 7px 8px; border:0; border-radius:999px; background:#262720; color:white; font-size:14px; font-weight:750; box-shadow:0 4px 12px #24251f2a; }
+    .help b { width:25px; height:25px; display:grid; place-items:center; border-radius:50%; background:var(--lime); color:#25261f; }
+    .scroll-button { position:fixed; z-index:10; right:15px; bottom:16px; width:48px; height:48px; display:grid; place-items:center; border:0; border-radius:50%; background:#272821; color:var(--lime); font-size:23px; box-shadow:0 4px 12px #24251f2a; cursor:pointer; }
+    .side-tab { position:fixed; z-index:9; right:0; top:42%; width:12px; height:45px; border:1px solid #9aca3c; border-right:0; border-radius:7px 0 0 7px; background:var(--white); }
+    .side-tab::after { content:""; position:absolute; left:4px; top:15px; width:5px; height:5px; border:1px solid #272821; border-radius:50%; }
+
+    .picker-card::after { content:""; position:absolute; z-index:4; inset:-3px; border:2px solid var(--lime); border-radius:23px; box-shadow:0 0 0 5px rgba(201,255,88,.22),0 0 24px rgba(201,255,88,.6); opacity:0; pointer-events:none; }
+    .picker-card.arrival-flash::after { animation:arrival-ring 1.05s ease-out 2; }
+    .flight-overlay { position:fixed; z-index:30; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; visibility:hidden; }
+    .flight-overlay.is-active { visibility:visible; }
+    .flight-trail { fill:none; stroke:#a5d349; stroke-width:2.5; stroke-linecap:round; stroke-dasharray:5 8; opacity:.8; filter:drop-shadow(0 0 3px rgba(165,211,73,.5)); }
+    .flight-overlay.is-popping .gift-bounce { animation:gift-pop .5s cubic-bezier(.18,.8,.25,1.2) both; }
+    .flight-overlay.is-popping .flight-gift { animation:gift-vanish .28s .22s ease-in forwards; }
+    .gift-bounce { transform-box:fill-box; transform-origin:center; }
+    .gift-lid { transform-box:fill-box; transform-origin:50% 100%; transition:transform .28s cubic-bezier(.2,.8,.2,1.2); }
+    .flight-overlay.is-popping .gift-lid { transform:translateY(-11px) rotate(-28deg); }
+    .confetti-piece { opacity:0; transform-box:fill-box; transform-origin:center; }
+    .flight-overlay.is-popping .confetti-piece { animation:gift-confetti .95s var(--delay,0ms) cubic-bezier(.12,.72,.25,1) both; }
+    .arrival-note { position:fixed; z-index:31; max-width:220px; padding:8px 12px; border:1px solid #b9e653; border-radius:999px; background:var(--lime); color:var(--ink); box-shadow:0 4px 12px rgba(36,37,31,.18); font-size:12px; font-weight:800; line-height:1.2; white-space:nowrap; opacity:0; transform:translateY(7px) rotate(var(--note-angle,-90deg)) scale(.92); pointer-events:none; }
+    .arrival-note.is-visible { animation:note-pop .25s cubic-bezier(.18,.8,.25,1.2) both; }
+    .arrival-note.is-leaving { opacity:0; transform:translateY(-4px) rotate(var(--note-angle,-90deg)) scale(.96); transition:opacity .3s,transform .3s; }
+
+    @keyframes deal-left { 0% { opacity:0; transform:translate(0,-9px) rotate(0) scale(.92); } 58% { opacity:1; transform:translate(-28px,8px) rotate(-21deg) scale(1.04); } 78% { transform:translate(-16px,3px) rotate(-10deg) scale(.99); } 100% { opacity:1; transform:translate(-19px,5px) rotate(-14deg) scale(1); } }
+    @keyframes deal-right { 0% { opacity:0; transform:translate(0,-9px) rotate(0) scale(.92); } 58% { opacity:1; transform:translate(27px,7px) rotate(20deg) scale(1.04); } 78% { transform:translate(15px,3px) rotate(9deg) scale(.99); } 100% { opacity:1; transform:translate(18px,4px) rotate(13deg) scale(1); } }
+    @keyframes deal-front { 0% { opacity:0; transform:translateY(8px) rotate(0) scale(.94); } 68% { opacity:1; transform:translateY(-4px) rotate(2deg) scale(1.025); } 100% { opacity:1; transform:translateY(0) rotate(-1deg) scale(1); } }
+    @keyframes shuffle-left { 0%,100% { transform:translate(-19px,5px) rotate(-14deg); } 26% { transform:translate(-29px,9px) rotate(-28deg); } 50% { transform:translate(-19px,5px) rotate(-14deg); } 76% { transform:translate(-27px,8px) rotate(-26deg); } }
+    @keyframes shuffle-right { 0%,100% { transform:translate(18px,4px) rotate(13deg); } 26% { transform:translate(28px,8px) rotate(27deg); } 50% { transform:translate(18px,4px) rotate(13deg); } 76% { transform:translate(26px,7px) rotate(25deg); } }
+    @keyframes shuffle-front { 0%,100% { transform:rotate(-1deg) translateY(0); } 25% { transform:rotate(3deg) translateY(-5px); } 50% { transform:rotate(-1deg) translateY(0); } 75% { transform:rotate(-3deg) translateY(-4px); } }
+    @keyframes icon-hop { 0%,100% { transform:scale(1) rotate(0); } 25% { transform:scale(.8) rotate(-9deg); } 50% { transform:scale(1) rotate(0); } 75% { transform:scale(1.1) rotate(8deg); } }
+    @keyframes pick-land { 0% { transform:rotate(-1deg) scale(.95); } 72% { transform:rotate(2deg) scale(1.035); } 100% { transform:rotate(-1deg) scale(1); } }
+    @keyframes card-float { 0%,100% { translate:0 0; } 50% { translate:0 -5px; } }
+    @keyframes gift-pop { 0% { transform:scale(.82) rotate(0); } 32% { transform:scale(1.28) rotate(-8deg); } 58% { transform:scale(1.12) rotate(5deg); } 100% { transform:scale(.25) rotate(15deg); } }
+    @keyframes gift-vanish { to { opacity:0; } }
+    @keyframes gift-confetti { 0% { opacity:0; transform:translate(0,0) rotate(0) scale(.4); } 12% { opacity:1; } 100% { opacity:0; transform:translate(var(--dx),var(--dy)) rotate(var(--turn)) scale(.65); } }
+    @keyframes note-pop { from { opacity:0; transform:translateY(7px) rotate(var(--note-angle,-90deg)) scale(.92); } to { opacity:1; transform:translateY(0) rotate(var(--note-angle,-90deg)) scale(1); } }
+    @keyframes arrival-ring { 0% { opacity:0; transform:scale(.99); } 35% { opacity:1; } 100% { opacity:0; transform:scale(1.025); } }
+    @media (max-width:760px) {
+      .shell,.topbar-inner { width:min(100% - 28px,620px); }
+      .nav { gap:14px; font-size:12px; } .nav a:nth-child(2),.nav a:nth-child(3),.theme-toggle { display:none; }
+      h1 { font-size:31px; }
+      .category-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .games-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:420px) {
+      .shell,.topbar-inner { width:calc(100% - 24px); }
+      .topbar { height:60px; }
+      .nav { gap:10px; } .nav .signin { padding:8px 12px; }
+      h1 { margin-top:3px; font-size:27px; }
+      .section-heading h2 { font-size:19px; }
+      .category-grid { gap:8px; }
+      .category { min-height:94px; padding:9px; border-radius:13px; }
+      .category strong { font-size:13px; }
+      .category small { font-size:8px; }
+      .games-grid { gap:9px; }
+      .game-card { padding:7px; border-radius:16px; }
+      .cover,.picker-cover { height:105px; }
+      .game-info { padding:9px 4px 0; }
+      .game-name,.picker-game-title { font-size:14px; }
+      .game-actions { margin-top:10px; }
+      .picker-card.has-result .pick-button::after { content:"↻ Again"; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
   </style>
 </head>
 <body>
-  <main class="picker" id="picker" aria-labelledby="title">
-    <div class="topline"><div class="eyebrow"><span class="sparkle-mark" aria-hidden="true">✳</span> Mystery game pick</div><span class="count">01 / ∞</span></div>
-    <h1 id="title">Surprise me</h1>
-    <p class="hint" id="hint" aria-live="polite">Can’t choose? Let the arcade pick your next game.</p>
-    <div class="ticket-space" aria-hidden="true">
-      <span class="sticker s1">✦</span><span class="sticker s2">✧</span><span class="sticker s3">✳</span>
-      <div class="ticket-stack">
-        <div class="ticket back" id="back-ticket" style="--card-accent:#e5def6"><div class="mini-face"><span class="mini-icon" id="back-icon">🌀</span><strong class="mini-title" id="back-title">Boju Boju</strong></div></div>
-        <div class="ticket middle" id="middle-ticket" style="--card-accent:#d7ebd0"><div class="mini-face"><span class="mini-icon" id="middle-icon">🛵</span><strong class="mini-title" id="middle-title">Lagos Bike Rush</strong></div></div>
-        <div class="ticket front" id="ticket">
-          <div class="ticket-art" id="ticket-art" style="--accent:#dfe9c7"><span class="ticket-icon" id="ticket-icon">🧭</span></div>
-          <div class="ticket-copy"><span class="ticket-tag" id="ticket-tag">community game</span><strong class="ticket-title" id="ticket-title">Git Quest</strong><span class="ticket-by" id="ticket-by">by Belemote</span><span class="ticket-dash"></span></div>
-          <span class="ticket-seal">✦</span>
-        </div>
+  <header class="topbar" id="top">
+    <div class="topbar-inner">
+      <a class="brand" id="brand-logo" href="https://start.ng"><span class="brand-mark">▶</span><span>start.ng</span></a>
+      <nav class="nav" aria-label="Main navigation"><a href="https://start.ng/games">Games</a><a href="https://start.ng/tournament">Tournament</a><a href="https://start.ng/creators">Creators</a><a href="https://start.ng/docs">Docs</a><button class="theme-toggle" aria-label="Toggle theme">☾</button><a class="signin" href="https://start.ng">Sign in</a></nav>
+    </div>
+  </header>
+  <main class="shell">
+    <h1>All games from the community</h1>
+    <p class="scroll-cue">scroll for a surprise!</p>
+    <div class="search-row">
+      <label class="search"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.6" stroke="currentColor" stroke-width="1.8"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="search" type="search" placeholder="Search games or creators" autocomplete="off" /></label>
+      <span class="range">1–20 of 189</span>
+    </div>
+
+    <section class="category-section" aria-labelledby="category-heading">
+      <div class="section-heading"><h2 id="category-heading">Browse by category</h2><a href="https://start.ng/categories">All categories&nbsp; →</a></div>
+      <div class="category-grid">
+        <a class="category cat-runner" data-art="🏃🏽‍♂️" href="https://start.ng/categories"><span class="category-copy"><strong>Endless runners</strong><small>38 games</small></span></a>
+        <a class="category cat-naija" data-art="🏙️" href="https://start.ng/categories"><span class="category-copy"><strong>Nigerian themed</strong><small>43 games</small></span></a>
+        <a class="category cat-brain" data-art="💡" href="https://start.ng/categories"><span class="category-copy"><strong>Brainy games</strong><small>25 games</small></span></a>
+        <a class="category cat-space" data-art="🪐" href="https://start.ng/categories"><span class="category-copy"><strong>Space and sci-fi</strong><small>9 games</small></span></a>
+        <a class="category cat-race" data-art="🏎️" href="https://start.ng/categories"><span class="category-copy"><strong>Racing and driving</strong><small>14 games</small></span></a>
+        <a class="category cat-catch" data-art="🍌" href="https://start.ng/categories"><span class="category-copy"><strong>Catch and dodge</strong><small>29 games</small></span></a>
+        <a class="category cat-ruins" data-art="🏛️" href="https://start.ng/categories"><span class="category-copy"><strong>Ancient ruins and treasure</strong><small>8 games</small></span></a>
+        <a class="category cat-friends" data-art="🎮" href="https://start.ng/categories"><span class="category-copy"><strong>With friends</strong><small>8 games</small></span></a>
       </div>
+    </section>
+
+    <div class="filters" aria-label="Game filters">
+      <a class="filter-pill active" href="#games">All</a><a class="filter-pill" href="#games">Racing</a><a class="filter-pill" href="#games">Uncategorized</a>
+      <span class="filter-text">Rating</span><span class="filter-select"><b>Any</b><span class="chevron">⌄</span></span>
+      <span class="filter-text">Sort</span><span class="filter-select"><b>New</b><span class="chevron">⌄</span></span>
     </div>
-    <div class="actions">
-      <button type="button" id="pick"><span class="dice" aria-hidden="true">✣</span><span class="label">Surprise me</span></button>
-      <a class="play-link" id="play" href="https://start.ng/games" aria-hidden="true" tabindex="-1">Play this game&nbsp; ↗</a>
-    </div>
-    <p class="fineprint"><span aria-hidden="true">✦</span> One tap away. A little mystery awaits.</p>
+
+    <section class="games-grid" id="games" aria-label="Community games">
+      <article class="game-card picker-card" id="picker" aria-busy="false">
+        <div class="picker-cover" aria-hidden="true">
+          <span class="tiny-star s1">✦</span><span class="tiny-star s2">✧</span>
+          <div class="mini-stack">
+            <div class="mini-ticket back" id="back-ticket" style="--mini-color:#e5def6"><div class="mini-back-face"><span id="back-icon">🌀</span><b id="back-title">Boju Boju</b></div></div>
+            <div class="mini-ticket middle" id="middle-ticket" style="--mini-color:#d7ebd0"><div class="mini-back-face"><span id="middle-icon">🛵</span><b id="middle-title">Lagos Bike Rush</b></div></div>
+            <div class="mini-ticket front" id="front-ticket" style="--ticket-art:#dfe9c7">
+              <span class="mini-art" id="front-icon">🧭</span><span class="mini-copy"><span class="mini-tag" id="front-tag">surprise pick</span><b class="mini-name" id="front-title">Git Quest</b><span class="mini-by" id="front-by">by Belemote</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="game-info">
+          <strong class="picker-game-title" id="picker-title">MYSTERY GAME PICK</strong>
+          <span class="picker-subtitle" id="picker-url">One tap away.<br />A little mystery awaits.</span>
+          <span class="picker-by" id="picker-by"></span>
+          <div class="game-actions">
+            <button class="heart" type="button" aria-label="A little surprise">✦</button>
+            <button class="pick-button" id="pick-button" type="button">Surprise me</button>
+            <a class="play-result" id="play-result" href="#" tabindex="-1">Play</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="game-card game-entry" data-name="The Hangout" data-by="start.ng">
+        <div class="cover hangout-cover"><span class="hangout-sun"></span><i class="hangout-tree t1"></i><i class="hangout-tree t2"></i><i class="hangout-tree t3"></i><span class="hangout-person">🧍🏽</span></div>
+        <div class="game-info"><strong class="game-name">The Hangout</strong><span class="game-url">start.ng/hangout</span><span class="game-by">by start.ng</span><div class="game-actions"><button class="heart" aria-label="Like The Hangout">♡</button><a class="card-link" href="https://start.ng/hangout">Play</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Lagos Legends Street Quest" data-by="Triple">
+        <div class="cover orange-cover"><span class="initial">L</span></div>
+        <div class="game-info"><strong class="game-name">Lagos Legends Str...</strong><span class="game-url">lagos-legends-street-ques...</span><span class="game-by">by Triple</span><div class="game-actions"><button class="heart" aria-label="Like Lagos Legends">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Bingo" data-by="Hamzat">
+        <div class="cover dark-cover"><span class="cover-tag">start.ng</span><span class="game-word">Bingo<span class="game-description">Tap the card, match the numbers and win.</span></span><div class="mock-screen"><span class="screen-title">BINGO</span><div class="bingo-balls"><i>2</i><i>7</i><i>5</i><i>9</i><i>4</i><i>1</i><i>8</i><i>3</i></div></div></div>
+        <div class="game-info"><strong class="game-name">Bingo</strong><span class="game-url">bingo.start.ng</span><span class="game-by">by Hamzat</span><div class="game-actions"><button class="heart" aria-label="Like Bingo">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Quiz" data-by="Hamzat">
+        <div class="cover dark-cover"><span class="cover-tag">start.ng</span><span class="game-word">Quiz<span class="game-description">How well do you know Nigeria?</span></span><div class="mock-screen"><span class="screen-title">QUIZ</span><div class="quiz-option">What is the capital of Nigeria?</div><div class="quiz-option correct">Lagos&nbsp; ✓</div><div class="quiz-option">Abuja</div></div></div>
+        <div class="game-info"><strong class="game-name">Quiz</strong><span class="game-url">quiz.start.ng</span><span class="game-by">by Hamzat</span><div class="game-actions"><button class="heart" aria-label="Like Quiz">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Ludo" data-by="Hamzat">
+        <div class="cover dark-cover"><span class="cover-tag">start.ng</span><span class="game-word">Ludo<span class="game-description">Roll the dice and race to home.</span></span><div class="cover-frame"><div class="ludo-board"><i>●</i><i>●</i><i>●</i><i>●</i></div></div></div>
+        <div class="game-info"><strong class="game-name">Ludo</strong><span class="game-url">ludo.start.ng</span><span class="game-by">by Hamzat</span><div class="game-actions"><button class="heart" aria-label="Like Ludo">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Whot" data-by="Hamzat">
+        <div class="cover dark-cover"><span class="cover-tag">start.ng</span><span class="game-word">Whot<span class="game-description">Play the card game. Match the shape.</span></span><div class="whot-cards"><i>●</i><i>▲</i><i>✦</i></div></div>
+        <div class="game-info"><strong class="game-name">Whot</strong><span class="game-url">whot.start.ng</span><span class="game-by">by Hamzat</span><div class="game-actions"><button class="heart" aria-label="Like Whot">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Ayo" data-by="Hamzat">
+        <div class="cover dark-cover"><span class="cover-tag">start.ng</span><span class="game-word">Ayo<span class="game-description">Traditional strategy game.</span></span><div class="ayo-seeds"></div></div>
+        <div class="game-info"><strong class="game-name">Ayo</strong><span class="game-url">ayo.start.ng</span><span class="game-by">by Hamzat</span><div class="game-actions"><button class="heart" aria-label="Like Ayo">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+      <article class="game-card game-entry" data-name="Draughts" data-by="Hamzat">
+        <div class="cover dark-cover"><span class="cover-tag">start.ng</span><span class="game-word">Draughts<span class="game-description">Jump, capture, and crown your king.</span></span><div class="draught-board"><b></b></div></div>
+        <div class="game-info"><strong class="game-name">Draughts</strong><span class="game-url">draughts.start.ng</span><span class="game-by">by Hamzat</span><div class="game-actions"><button class="heart" aria-label="Like Draughts">♡</button><a class="card-link" href="https://start.ng/games">View</a></div></div>
+      </article>
+    </section>
   </main>
+  <button class="help" type="button"><b>?</b> Help</button>
+  <button class="scroll-button" id="scroll-button" type="button" aria-label="Scroll down">↓</button>
+  <span class="side-tab" aria-hidden="true"></span>
+  <svg class="flight-overlay" id="flight-overlay" aria-hidden="true" preserveAspectRatio="none">
+    <path class="flight-trail" id="flight-trail"></path>
+    <g class="flight-gift" id="flight-gift">
+      <g class="gift-bounce">
+        <g class="gift-lid">
+          <rect x="-19" y="-17" width="38" height="9" rx="3" fill="#c9ff58" stroke="#24251f" stroke-width="2"></rect>
+          <path d="M0 -17c-2-9-13-11-14-5-1 5 8 6 14 5Zm0 0c2-9 13-11 14-5 1 5-8 6-14 5Z" fill="#fffefa" stroke="#24251f" stroke-width="2" stroke-linejoin="round"></path>
+        </g>
+        <rect x="-16" y="-8" width="32" height="25" rx="3" fill="#fffefa" stroke="#24251f" stroke-width="2"></rect>
+        <path d="M-4-8h8v25h-8z" fill="#c9ff58" stroke="#24251f" stroke-width="1.5"></path>
+        <path d="M-16 1h32" stroke="#24251f" stroke-width="1.5"></path>
+        <path d="M0 7v5" stroke="#24251f" stroke-width="1.5" stroke-linecap="round"></path>
+      </g>
+    </g>
+    <g id="flight-confetti">
+      <rect class="confetti-piece" x="-2" y="-2" width="5" height="7" rx="1" fill="#c9ff58" style="--dx:-34px;--dy:-29px;--turn:-45deg;--delay:0ms"></rect>
+      <circle class="confetti-piece" cx="0" cy="0" r="3" fill="#f2b448" style="--dx:32px;--dy:-26px;--turn:90deg;--delay:30ms"></circle>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#9180d4" style="--dx:-31px;--dy:27px;--turn:65deg;--delay:50ms"></path>
+      <rect class="confetti-piece" x="-2" y="-2" width="5" height="7" rx="1" fill="#ef8c69" style="--dx:35px;--dy:28px;--turn:125deg;--delay:20ms"></rect>
+      <circle class="confetti-piece" cx="0" cy="0" r="2.5" fill="#9acb42" style="--dx:1px;--dy:-37px;--turn:-25deg;--delay:60ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-2" width="4" height="7" rx="1" fill="#9180d4" style="--dx:-44px;--dy:-7px;--turn:115deg;--delay:80ms"></rect>
+      <circle class="confetti-piece" cx="0" cy="0" r="2.5" fill="#ef8c69" style="--dx:43px;--dy:-4px;--turn:-80deg;--delay:45ms"></circle>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#c9ff58" style="--dx:-12px;--dy:41px;--turn:110deg;--delay:100ms"></path>
+      <rect class="confetti-piece" x="-2" y="-2" width="5" height="7" rx="1" fill="#f2b448" style="--dx:13px;--dy:-43px;--turn:-125deg;--delay:70ms"></rect>
+      <circle class="confetti-piece" cx="0" cy="0" r="3" fill="#9180d4" style="--dx:-58px;--dy:-48px;--turn:190deg;--delay:90ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#c9ff58" style="--dx:59px;--dy:-51px;--turn:-170deg;--delay:120ms"></rect>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#ef8c69" style="--dx:-57px;--dy:49px;--turn:210deg;--delay:140ms"></path>
+      <circle class="confetti-piece" cx="0" cy="0" r="3" fill="#f2b448" style="--dx:58px;--dy:48px;--turn:-190deg;--delay:110ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#9180d4" style="--dx:-72px;--dy:-22px;--turn:150deg;--delay:180ms"></rect>
+      <circle class="confetti-piece" cx="0" cy="0" r="2.5" fill="#9acb42" style="--dx:72px;--dy:-20px;--turn:-160deg;--delay:160ms"></circle>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#f2b448" style="--dx:-18px;--dy:-67px;--turn:230deg;--delay:200ms"></path>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#ef8c69" style="--dx:20px;--dy:70px;--turn:-210deg;--delay:230ms"></rect>
+      <circle class="confetti-piece" cx="0" cy="0" r="3" fill="#c9ff58" style="--dx:4px;--dy:77px;--turn:175deg;--delay:190ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#f2b448" style="--dx:-80px;--dy:25px;--turn:-230deg;--delay:250ms"></rect>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#9180d4" style="--dx:81px;--dy:28px;--turn:200deg;--delay:220ms"></path>
+      <circle class="confetti-piece" cx="0" cy="0" r="2.5" fill="#ef8c69" style="--dx:-40px;--dy:-76px;--turn:160deg;--delay:270ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#9acb42" style="--dx:45px;--dy:-79px;--turn:-185deg;--delay:290ms"></rect>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#c9ff58" style="--dx:-91px;--dy:-42px;--turn:220deg;--delay:310ms"></path>
+      <circle class="confetti-piece" cx="0" cy="0" r="3" fill="#f2b448" style="--dx:92px;--dy:-44px;--turn:-220deg;--delay:330ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#9180d4" style="--dx:-88px;--dy:57px;--turn:185deg;--delay:350ms"></rect>
+      <path class="confetti-piece" d="M0-5 1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#ef8c69" style="--dx:87px;--dy:62px;--turn:-200deg;--delay:370ms"></path>
+      <circle class="confetti-piece" cx="0" cy="0" r="2.5" fill="#c9ff58" style="--dx:-52px;--dy:82px;--turn:240deg;--delay:390ms"></circle>
+      <rect class="confetti-piece" x="-2" y="-3" width="5" height="8" rx="1" fill="#f2b448" style="--dx:55px;--dy:85px;--turn:-240deg;--delay:410ms"></rect>
+    </g>
+  </svg>
+  <div class="arrival-note" id="arrival-note" role="status" aria-live="polite">Arcade makes the choice</div>
   <script>
     const games = [
-      { name: "Git Quest", by: "Belemote", icon: "🧭", color: "#dfe9c7", url: "https://start.ng/games/git-quest" },
-      { name: "Lagos Bike Rush", by: "OBA", icon: "🛵", color: "#d7ebd0", url: "https://start.ng/games/lagos-bike-rush" },
-      { name: "Boju Boju", by: "99PlusOne", icon: "🌀", color: "#e5def6", url: "https://start.ng/games/boju-boju" },
-      { name: "Job Hunt", by: "Raji", icon: "🧑🏽‍💻", color: "#f6e3c7", url: "https://start.ng/games/job-hunt" },
-      { name: "Budget Panic", by: "Envy_Boop", icon: "🪙", color: "#f3ded7", url: "https://start.ng/games/budget-panic" },
-      { name: "Lagos Market Run", by: "Michelle", icon: "🧺", color: "#d4ece5", url: "https://start.ng/games/lagos-market-run" },
-      { name: "Inkbreak", by: "henryuks", icon: "🖋️", color: "#dce1f8", url: "https://start.ng/games/inkbreak" },
-      { name: "Cosmic Dash", by: "Sabhayor", icon: "☄️", color: "#e6def5", url: "https://start.ng/games/cosmic-dash" },
-      { name: "Jollof Rush", by: "Y_Aisha", icon: "🍲", color: "#f3e4ce", url: "https://start.ng/games/jollof-rush" },
-      { name: "Whimsy Wick", by: "Kanyinsola", icon: "🕯️", color: "#f2e7bd", url: "https://start.ng/games/whimsy-wick" }
+      { name:"Git Quest", by:"Belemote", icon:"🧭", color:"#dfe9c7", slug:"git-quest", url:"https://start.ng/games/git-quest" },
+      { name:"Lagos Bike Rush", by:"OBA", icon:"🛵", color:"#d7ebd0", slug:"lagos-bike-rush", url:"https://start.ng/games/lagos-bike-rush" },
+      { name:"Boju Boju", by:"99PlusOne", icon:"🌀", color:"#e5def6", slug:"boju-boju", url:"https://start.ng/games/boju-boju" },
+      { name:"Job Hunt", by:"Raji", icon:"🧑🏽‍💻", color:"#f6e3c7", slug:"job-hunt", url:"https://start.ng/games/job-hunt" },
+      { name:"Budget Panic", by:"Envy_Boop", icon:"🪙", color:"#f3ded7", slug:"budget-panic", url:"https://start.ng/games/budget-panic" },
+      { name:"Lagos Market Run", by:"Michelle", icon:"🧺", color:"#d4ece5", slug:"lagos-market-run", url:"https://start.ng/games/lagos-market-run" },
+      { name:"Inkbreak", by:"henryuks", icon:"🖋️", color:"#dce1f8", slug:"inkbreak", url:"https://start.ng/games/inkbreak" },
+      { name:"Cosmic Dash", by:"Sabhayor", icon:"☄️", color:"#e6def5", slug:"cosmic-dash", url:"https://start.ng/games/cosmic-dash" },
+      { name:"Jollof Rush", by:"Y_Aisha", icon:"🍲", color:"#f3e4ce", slug:"jollof-rush", url:"https://start.ng/games/jollof-rush" },
+      { name:"Whimsy Wick", by:"Kanyinsola", icon:"🕯️", color:"#f2e7bd", slug:"whimsy-wick", url:"https://start.ng/games/whimsy-wick" }
     ];
     const picker = document.getElementById("picker");
-    const button = document.getElementById("pick");
-    const hint = document.getElementById("hint");
-    const title = document.getElementById("ticket-title");
-    const byline = document.getElementById("ticket-by");
-    const icon = document.getElementById("ticket-icon");
-    const tag = document.getElementById("ticket-tag");
-    const art = document.getElementById("ticket-art");
+    const pickButton = document.getElementById("pick-button");
+    const search = document.getElementById("search");
+    const frontTitle = document.getElementById("front-title");
+    const frontBy = document.getElementById("front-by");
+    const frontIcon = document.getElementById("front-icon");
+    const frontTicket = document.getElementById("front-ticket");
     const backTitle = document.getElementById("back-title");
     const backIcon = document.getElementById("back-icon");
+    const backTicket = document.getElementById("back-ticket");
     const middleTitle = document.getElementById("middle-title");
     const middleIcon = document.getElementById("middle-icon");
-    const backTicket = document.getElementById("back-ticket");
     const middleTicket = document.getElementById("middle-ticket");
-    const play = document.getElementById("play");
+    const pickerTitle = document.getElementById("picker-title");
+    const pickerUrl = document.getElementById("picker-url");
+    const pickerBy = document.getElementById("picker-by");
+    const playResult = document.getElementById("play-result");
     let lastPick = 0;
     let busy = false;
 
-    button.addEventListener("click", () => {
+    function paintTicket(element, titleElement, iconElement, game) {
+      titleElement.textContent = game.name;
+      iconElement.textContent = game.icon;
+      element.style.setProperty("--mini-color", game.color);
+      if (element === frontTicket) element.style.setProperty("--ticket-art", game.color);
+    }
+
+    pickButton.addEventListener("click", () => {
       if (busy) return;
       busy = true;
-      button.disabled = true;
+      picker.setAttribute("aria-busy", "true");
       picker.classList.remove("has-result");
       picker.classList.add("is-shuffling");
-      play.setAttribute("aria-hidden", "true");
-      play.setAttribute("tabindex", "-1");
-      hint.textContent = "Shuffling the community arcade…";
+      playResult.setAttribute("tabindex", "-1");
       let ticks = 0;
       const ticker = window.setInterval(() => {
         let index;
         do { index = Math.floor(Math.random() * games.length); } while (index === lastPick && games.length > 1);
-        const game = games[index];
-        title.textContent = game.name;
-        byline.textContent = `by ${game.by}`;
-        icon.textContent = game.icon;
-        art.style.setProperty("--accent", game.color);
-        tag.textContent = "lucky pick";
-        play.href = game.url;
-        const backGame = games[(index + 1) % games.length];
-        const middleGame = games[(index + 2) % games.length];
-        backTitle.textContent = backGame.name;
-        backIcon.textContent = backGame.icon;
-        backTicket.style.setProperty("--card-accent", backGame.color);
-        middleTitle.textContent = middleGame.name;
-        middleIcon.textContent = middleGame.icon;
-        middleTicket.style.setProperty("--card-accent", middleGame.color);
+        const current = games[index];
+        const behindLeft = games[(index + 1) % games.length];
+        const behindRight = games[(index + 2) % games.length];
+        paintTicket(frontTicket, frontTitle, frontIcon, current);
+        paintTicket(backTicket, backTitle, backIcon, behindLeft);
+        paintTicket(middleTicket, middleTitle, middleIcon, behindRight);
         lastPick = index;
         ticks += 1;
         if (ticks >= 6) {
@@ -170,15 +424,130 @@
           window.setTimeout(() => {
             picker.classList.remove("is-shuffling");
             picker.classList.add("has-result");
-            hint.textContent = `The arcade picked ${game.name}. Fancy a round?`;
-            play.removeAttribute("aria-hidden");
-            play.removeAttribute("tabindex");
-            button.disabled = false;
+            picker.removeAttribute("aria-busy");
+            pickerTitle.textContent = current.name;
+            pickerUrl.textContent = `${current.slug}.start.ng`;
+            pickerBy.textContent = `by ${current.by}`;
+            playResult.href = current.url;
+            playResult.removeAttribute("tabindex");
             busy = false;
-          }, 850);
+          }, 640);
         }
-      }, 125);
+      }, 120);
     });
+
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      document.querySelectorAll(".game-entry").forEach(card => {
+        const text = `${card.dataset.name} ${card.dataset.by}`.toLowerCase();
+        card.hidden = !text.includes(query);
+      });
+      picker.hidden = query.length > 0 && !"surprise me game picker".includes(query);
+    });
+
+    const scrollButton = document.getElementById("scroll-button");
+    scrollButton.addEventListener("click", () => {
+      const down = scrollButton.textContent.trim() === "↓";
+      window.scrollTo({ top: down ? document.body.scrollHeight : 0, behavior: "smooth" });
+    });
+    window.addEventListener("scroll", () => {
+      const atTop = window.scrollY < 120;
+      scrollButton.textContent = atTop ? "↓" : "↑";
+      scrollButton.setAttribute("aria-label", atTop ? "Scroll down" : "Scroll to top");
+    }, { passive:true });
+
+    function launchWelcomeGift() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const logo = document.getElementById("brand-logo");
+      const card = document.getElementById("picker");
+      const overlay = document.getElementById("flight-overlay");
+      const gift = document.getElementById("flight-gift");
+      const trail = document.getElementById("flight-trail");
+      const confetti = document.getElementById("flight-confetti");
+      const note = document.getElementById("arrival-note");
+      if (!logo || !card || !overlay) return;
+
+      const logoRect = logo.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const narrow = cardRect.left < 56;
+      const start = { x:Math.max(7, logoRect.left - 10), y:logoRect.top + logoRect.height / 2 };
+      let end = narrow
+        ? { x:cardRect.left + cardRect.width / 2, y:cardRect.top - 16 }
+        : { x:cardRect.left - 20, y:cardRect.top + cardRect.height / 2 };
+      const p1 = { x:start.x + Math.min(190, innerWidth * .27), y:start.y + Math.max(90, (end.y - start.y) * .22) };
+      let p2 = { x:end.x - Math.min(155, innerWidth * .22), y:end.y - Math.max(120, (end.y - start.y) * .23) };
+      overlay.setAttribute("viewBox", `0 0 ${innerWidth} ${innerHeight}`);
+      trail.setAttribute("d", "");
+      gift.setAttribute("transform", `translate(${start.x} ${start.y})`);
+      overlay.classList.add("is-active");
+      note.style.setProperty("--note-angle", narrow ? "-8deg" : "-90deg");
+      note.style.left = "0px";
+      note.style.top = "0px";
+      const noteCenterX = narrow ? end.x : end.x - 14;
+      const noteCenterY = narrow ? end.y - 35 : end.y;
+      note.style.left = `${Math.max(8, Math.min(innerWidth - note.offsetWidth - 8, noteCenterX - note.offsetWidth / 2))}px`;
+      note.style.top = `${Math.max(8, Math.min(innerHeight - note.offsetHeight - 8, noteCenterY - note.offsetHeight / 2))}px`;
+
+      const duration = 2500;
+      const delay = 220;
+      const started = performance.now() + delay;
+      const pointAt = progress => {
+        const t = progress, u = 1 - t;
+        return {
+          x:u*u*u*start.x + 3*u*u*t*p1.x + 3*u*t*t*p2.x + t*t*t*end.x,
+          y:u*u*u*start.y + 3*u*u*t*p1.y + 3*u*t*t*p2.y + t*t*t*end.y,
+          dx:3*u*u*(p1.x-start.x) + 6*u*t*(p2.x-p1.x) + 3*t*t*(end.x-p2.x),
+          dy:3*u*u*(p1.y-start.y) + 6*u*t*(p2.y-p1.y) + 3*t*t*(end.y-p2.y)
+        };
+      };
+      const trailAt = progress => {
+        if (progress <= 0) return "";
+        const span = .26;
+        const from = Math.max(0, progress - span);
+        const steps = 12;
+        let d = "";
+        for (let i = 0; i <= steps; i++) {
+          const p = from + (progress - from) * i / steps;
+          const point = pointAt(p);
+          d += `${i === 0 ? "M" : "L"} ${point.x} ${point.y} `;
+        }
+        return d;
+      };
+      const animate = now => {
+        const raw = Math.min(1, Math.max(0, (now - started) / duration));
+        if (now < started) { requestAnimationFrame(animate); return; }
+        const currentCard = card.getBoundingClientRect();
+        end = narrow
+          ? { x:currentCard.left + currentCard.width / 2, y:currentCard.top - 16 }
+          : { x:currentCard.left - 20, y:currentCard.top + currentCard.height / 2 };
+        p2 = { x:end.x - Math.min(155, innerWidth * .22), y:end.y - Math.max(120, (end.y - start.y) * .23) };
+        const eased = raw;
+        const point = pointAt(eased);
+        const angle = Math.atan2(point.dy, point.dx) * 180 / Math.PI;
+        const scale = .72 + .28 * Math.sin(Math.PI * eased);
+        gift.setAttribute("transform", `translate(${point.x} ${point.y}) rotate(${angle}) scale(${scale})`);
+        trail.setAttribute("d", trailAt(eased));
+        if (raw < 1) { requestAnimationFrame(animate); return; }
+
+        trail.setAttribute("d", "");
+        confetti.setAttribute("transform", `translate(${end.x} ${end.y})`);
+        const noteCenterX = narrow ? end.x : end.x - 14;
+        const noteCenterY = narrow ? end.y - 35 : end.y;
+        note.style.left = `${Math.max(8, Math.min(innerWidth - note.offsetWidth - 8, noteCenterX - note.offsetWidth / 2))}px`;
+        note.style.top = `${Math.max(8, Math.min(innerHeight - note.offsetHeight - 8, noteCenterY - note.offsetHeight / 2))}px`;
+        overlay.classList.add("is-popping");
+        card.classList.add("arrival-flash");
+        note.classList.add("is-visible");
+        window.setTimeout(() => note.classList.add("is-leaving"), 1650);
+        window.setTimeout(() => {
+          overlay.classList.remove("is-active", "is-popping");
+          card.classList.remove("arrival-flash");
+          note.classList.remove("is-visible", "is-leaving");
+        }, 2050);
+      };
+      window.setTimeout(() => requestAnimationFrame(animate), delay);
+    }
+    window.addEventListener("scroll", launchWelcomeGift, { once:true, passive:true });
   </script>
 </body>
 </html>
